@@ -21,7 +21,8 @@ void main() {
     }
   }
 
-  const apiKey = '71e9c38f687a551765e7dbb9bf73f1fc';
+  // Replaced at run time by a real client key when testing end to end.
+  const clientKey = 'REPLACE_WITH_CLIENT_KEY';
 
   // flutter_test installs an HttpOverrides that fails every request with a 400.
   // Clearing it lets the submit tests actually reach Supabase.
@@ -30,8 +31,8 @@ void main() {
   // No isolate: `compute` never completes under flutter_test.
   const testConfig = PinpointConfig(useIsolateForEncoding: false);
 
-  Widget host({String key = apiKey}) => Pinpoint(
-        apiKey: key,
+  Widget host({String key = clientKey}) => Pinpoint(
+        clientKey: key,
         config: testConfig,
         appVersion: 'test',
         buildNumber: '0',

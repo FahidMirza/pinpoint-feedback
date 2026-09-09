@@ -37,7 +37,7 @@ class PinpointApi {
   /// A failed upload does not abort the submission — the note and markers are
   /// still worth keeping, so the row is written with a null image.
   Future<void> submit({
-    String? apiKey,
+    required String? clientKey,
     required PinpointAppInfo info,
     required String? note,
     required List<PinpointMarker> markers,
@@ -47,12 +47,10 @@ class PinpointApi {
     String? buildNumber,
     String? reporterEmail,
   }) async {
-    final hasKey = apiKey != null && apiKey.trim().isNotEmpty;
-
-    if (!hasKey && (info.packageId == null || info.packageId!.isEmpty)) {
+    if (info.packageId == null || info.packageId!.isEmpty) {
       throw PinpointException(
-        'Pinpoint could not identify this app. Pass an apiKey on platforms '
-        'without a package id, such as web.',
+        'Pinpoint could not identify this app. The package id is unavailable '
+        'on this platform.',
       );
     }
 
@@ -62,18 +60,16 @@ class PinpointApi {
       try {
         // Screenshots are stored under <app_id>/, so the app has to be
         // resolved (and, for a new package, created) before uploading.
-        final appId = hasKey
-            ? await _resolveByKey(apiKey)
-            : await _resolveByPackage(info.packageId!, info.appName);
+        final appId = await _resolve(clientKey, info.packageId!, info.appName);
         imagePath = await _uploadScreenshot(appId: appId, bytes: screenshot);
       } catch (e) {
         debugPrint('[Pinpoint] screenshot upload failed, submitting without it: $e');
       }
     }
 
-    await _rpc('submit_feedback_v2', {
+    await _rpc('submit_feedback_v3', {
+      'p_client_key': clientKey,
       'p_package_id': info.packageId,
-      'p_api_key': hasKey ? apiKey : null,
       'p_app_name': info.appName,
       'p_note': note,
       'p_image_url': imagePath,
@@ -87,17 +83,13 @@ class PinpointApi {
     });
   }
 
-  Future<String> _resolveByKey(String? apiKey) async {
-    final body = await _rpc('pinpoint_resolve_app', {'p_api_key': apiKey});
-    return _asId(body, 'Could not resolve app for this API key.');
-  }
-
-  Future<String> _resolveByPackage(String packageId, String? appName) async {
-    final body = await _rpc('pinpoint_resolve_package', {
+  Future<String> _resolve(String? clientKey, String packageId, String? appName) async {
+    final body = await _rpc('pinpoint_resolve', {
+      'p_client_key': clientKey,
       'p_package_id': packageId,
       'p_app_name': appName,
     });
-    return _asId(body, 'Could not resolve app for package $packageId.');
+    return _asId(body, 'Could not resolve an app for package $packageId.');
   }
 
   String _asId(String body, String message) {
@@ -140,8 +132,11 @@ class PinpointApi {
     }
 
     if (res.statusCode < 200 || res.statusCode >= 300) {
-      if (res.statusCode == 401 || res.statusCode == 403 || res.body.contains('Invalid api key')) {
-        throw PinpointException('This app\'s Pinpoint API key is not valid.');
+      if (res.body.contains('Invalid client key')) {
+        throw PinpointException('This app\'s Pinpoint client key is not valid.');
+      }
+      if (res.statusCode == 401 || res.statusCode == 403) {
+        throw PinpointException('Pinpoint rejected this request.');
       }
       throw PinpointException('Could not send feedback (${res.statusCode}).');
     }

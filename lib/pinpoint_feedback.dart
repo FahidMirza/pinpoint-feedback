@@ -2,11 +2,11 @@
 ///
 /// Wrap your app once:
 /// ```dart
-/// runApp(Pinpoint(child: MyApp()));
+/// runApp(Pinpoint(clientKey: 'your-client-key', child: MyApp()));
 /// ```
 ///
-/// The app registers itself by package id on its first submission — there is
-/// no key to create or paste.
+/// One key per client covers all of their apps. Each app registers itself by
+/// package id the first time feedback is sent.
 library pinpoint_feedback;
 
 export 'src/app_info.dart' show PinpointAppInfo;

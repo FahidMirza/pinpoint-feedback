@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:pinpoint_feedback/pinpoint_feedback.dart';
 
+/// Ask for this once per client. The same key goes in all of their apps.
+const kClientKey = String.fromEnvironment(
+  'PINPOINT_CLIENT_KEY',
+  defaultValue: 'REPLACE_WITH_CLIENT_KEY',
+);
+
 void main() {
   // This is the entire integration.
   runApp(
-    // The whole integration. The package id identifies the app; version and
-    // device details are read from the platform.
-    const Pinpoint(child: DemoApp()),
+    // The whole integration. One key per client; the package id identifies
+    // which of that client's apps this is.
+    const Pinpoint(clientKey: kClientKey, child: DemoApp()),
   );
 }
 

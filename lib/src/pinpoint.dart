@@ -39,7 +39,7 @@ enum _Phase { idle, marking, composing }
 /// Wrap your app to add in-app feedback.
 ///
 /// ```dart
-/// runApp(Pinpoint(apiKey: 'your-app-key', child: MyApp()));
+/// runApp(Pinpoint(clientKey: 'your-client-key', child: MyApp()));
 /// ```
 ///
 /// Adds a floating button over the whole app. Tapping it lets the reporter mark
@@ -48,7 +48,7 @@ enum _Phase { idle, marking, composing }
 class Pinpoint extends StatefulWidget {
   const Pinpoint({
     super.key,
-    this.apiKey,
+    required this.clientKey,
     required this.child,
     this.enabled = true,
     this.userEmail,
@@ -58,11 +58,10 @@ class Pinpoint extends StatefulWidget {
     this.config = const PinpointConfig(),
   });
 
-  /// Optional. Feedback is normally routed by the app's package id, which the
-  /// SDK reads for itself — so nothing needs configuring. Set a key only to
-  /// pin this build to a specific app (separate staging and production, say),
-  /// or on web, where there is no package id.
-  final String? apiKey;
+  /// The key for the client this app belongs to. One key covers all of that
+  /// client's apps: each registers itself by package id the first time
+  /// feedback is sent, already attached to the right client.
+  final String clientKey;
 
   /// Your app.
   final Widget child;
@@ -169,7 +168,7 @@ class _PinpointState extends State<Pinpoint> {
   Future<String?> _submit(String note) async {
     try {
       await _api.submit(
-        apiKey: widget.apiKey,
+        clientKey: widget.clientKey,
         info: _info,
         note: note,
         markers: List.of(_markers),

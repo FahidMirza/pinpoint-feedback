@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0
+
+Breaking: `Pinpoint` now takes a required `clientKey` and no longer accepts
+`apiKey`.
+
+- One key per client, not per app. Every app a client builds carries the same
+  key, registers itself by package id on first submission, and arrives already
+  attached to that client — no app to create and none to assign afterwards.
+- An app that already belongs to a client is never reassigned by a submission,
+  so a key cannot be used to claim someone else's package id.
+- Apps registered before client keys existed are adopted the first time a build
+  submits with one.
+
+Upgrading from 0.2.0: replace `apiKey:` with `clientKey:` and use the key from
+your client's row rather than a per-app key.
+
 ## 0.2.0
 
 - Apps identify themselves by package id — no API key to create or paste.

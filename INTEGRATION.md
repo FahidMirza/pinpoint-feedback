@@ -3,7 +3,7 @@
 Pinpoint puts a small feedback button in the app. Testers tap it, mark the spots
 that look wrong, write a note, and it sends that along with a screenshot.
 
-Setup is two lines. Nothing to sign up for and no key to configure.
+Setup is two lines, plus the key we send you.
 
 ---
 
@@ -16,7 +16,7 @@ dependencies:
   pinpoint_feedback:
     git:
       url: https://github.com/FahidMirza/pinpoint-feedback.git
-      ref: v0.2.0
+      ref: v0.3.0
 ```
 
 Then:
@@ -35,13 +35,16 @@ import 'package:pinpoint_feedback/pinpoint_feedback.dart';
 
 void main() {
   runApp(
-    Pinpoint(child: MyApp()),   // <- your existing app, unchanged
+    Pinpoint(
+      clientKey: 'your-client-key',   // we give you this
+      child: MyApp(),                // your existing app, unchanged
+    ),
   );
 }
 ```
 
-That is the whole integration. There is no key or ID to configure — the app
-identifies itself by its package id.
+That is the whole integration. The one key covers every app you build for us;
+each app is told apart by its package id automatically.
 
 ## Step 3 — Run it
 
@@ -69,6 +72,7 @@ MaterialApp(
 
 ```dart
 Pinpoint(
+  clientKey: 'your-client-key',
   enabled: !kReleaseMode,
   child: MyApp(),
 )
@@ -78,6 +82,7 @@ Pinpoint(
 
 ```dart
 Pinpoint(
+  clientKey: 'your-client-key',
   userEmail: currentUser.email,
   child: MyApp(),
 )
@@ -114,6 +119,6 @@ flutter clean && flutter run
 ```
 
 **Nothing arrives in the dashboard**
-Send us the package id — `applicationId` in `android/app/build.gradle`, or the
+Check the client key is the one we sent you, then send us the package id — `applicationId` in `android/app/build.gradle`, or the
 bundle identifier in Xcode. Feedback is routed by that, and the app registers
 itself on the first send.

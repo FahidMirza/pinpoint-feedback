@@ -1,6 +1,6 @@
 name: pinpoint_feedback
 description: Floating in-app feedback SDK. Clients tap to mark problem spots on any screen, write a note, and it ships a screenshot plus context to Pinpoint.
-version: 0.2.0
+version: 0.3.0
 publish_to: none
 
 environment:

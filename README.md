@@ -11,7 +11,7 @@ dependencies:
   pinpoint_feedback:
     git:
       url: https://github.com/FahidMirza/pinpoint-feedback.git
-      ref: v0.2.0
+      ref: v0.3.0
 ```
 
 Pin a tag, not `main` — otherwise a client app silently picks up whatever was
@@ -24,7 +24,7 @@ import 'package:pinpoint_feedback/pinpoint_feedback.dart';
 
 void main() {
   runApp(
-    Pinpoint(child: MyApp()),
+    Pinpoint(clientKey: 'your-client-key', child: MyApp()),
   );
 }
 ```
@@ -36,10 +36,10 @@ identifies itself by package id, and registers itself on its first submission.
 
 ```dart
 Pinpoint(
-  enabled: !kReleaseMode,         // hide the button in production builds
-  userEmail: currentUser.email,    // tag who reported it
-  alignment: Alignment.bottomLeft, // default: bottomRight
-  apiKey: 'optional-key',          // pin this build to a specific app
+  clientKey: 'your-client-key',
+  enabled: !kReleaseMode,          // hide the button in production builds
+  userEmail: currentUser.email,     // tag who reported it
+  alignment: Alignment.bottomLeft,  // default: bottomRight
   child: MyApp(),
 )
 ```
