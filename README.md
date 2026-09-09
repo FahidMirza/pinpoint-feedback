@@ -10,7 +10,7 @@ context — straight to your dashboard.
 dependencies:
   pinpoint_feedback:
     git:
-      url: git@github.com:YOUR-ORG/pinpoint-feedback.git
+      url: https://github.com/FahidMirza/pinpoint-feedback.git
       ref: v0.2.0
 ```
 
