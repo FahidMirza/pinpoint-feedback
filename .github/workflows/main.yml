@@ -1,0 +1,44 @@
+name: Keep Supabase awake
+
+# Supabase pauses free-tier projects after 7 days with no API requests. Restoring
+# one takes a minute or two, which a client hitting the dashboard would simply
+# see as an error. This pings every 3 days so that never happens.
+#
+# The URL and anon key are not secrets: the anon key is designed to be public,
+# ships inside every build of the SDK, and grants no read access on its own —
+# row level security decides that. Keeping them inline means there is nothing to
+# configure for this workflow to run.
+#
+# Delete this workflow if you move to Supabase Pro, which never pauses.
+
+on:
+  schedule:
+    - cron: "0 6 */3 * *" # 06:00 UTC, every 3 days
+  workflow_dispatch: # lets you run it by hand from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the REST API
+        env:
+          SUPABASE_URL: https://qvzkiglgnqyeqlpvjntf.supabase.co
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF2emtpZ2xnbnF5ZXFscHZqbnRmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NzY2MTYsImV4cCI6MjEwNDQ1MjYxNn0.giVk4k1COBVRgwQyK659ykLtN_xRNmVixYmrS9MSwh4
+        run: |
+          set -euo pipefail
+
+          # Returns zero rows — anonymous reads are blocked by RLS — but still
+          # counts as activity, which is all that is needed to prevent a pause.
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            "$SUPABASE_URL/rest/v1/clients?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+
+          echo "HTTP $code"
+
+          if [ "$code" != "200" ]; then
+            echo "::error::Unexpected status $code — the project may already be paused."
+            exit 1
+          fi
+
+          echo "Project is awake."
