@@ -1,0 +1,31 @@
+name: pinpoint_feedback
+description: Floating in-app feedback SDK. Clients tap to mark problem spots on any screen, write a note, and it ships a screenshot plus context to Pinpoint.
+version: 0.2.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Only pure-Dart packages. The native code below is ours, so adding it costs
+  # a client app nothing in dependency constraints — unlike depending on
+  # package_info_plus or device_info_plus, which could conflict with theirs.
+  http: ^1.2.0
+  image: ^4.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.pinpoint.feedback
+        pluginClass: PinpointFeedbackPlugin
+      ios:
+        pluginClass: PinpointFeedbackPlugin
