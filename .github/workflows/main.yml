@@ -1,11 +1,11 @@
 name: Keep Supabase awake
 
-# The first version made an empty read, and Supabase paused the project anyway.
-# This one writes a timestamp every day, which counts as real database work.
+# Writes a timestamp every day so Supabase counts the project as active.
+# The key comes from the SUPABASE_ANON_KEY repository secret.
 
 on:
   schedule:
-    - cron: "0 6 * * *" # daily, 06:00 UTC
+    - cron: "0 6 * * *"
   workflow_dispatch:
 
 jobs:
@@ -15,9 +15,14 @@ jobs:
       - name: Write a heartbeat
         env:
           SUPABASE_URL: https://qvzkiglgnqyeqlpvjntf.supabase.co
-          SUPABASE_ANON_KEY: eyJhbGci••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           set -euo pipefail
+
+          if [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::The SUPABASE_ANON_KEY repository secret is missing."
+            exit 1
+          fi
 
           response=$(curl -sS -w '\n%{http_code}' -X POST \
             "$SUPABASE_URL/rest/v1/rpc/pinpoint_heartbeat" \
